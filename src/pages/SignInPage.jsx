@@ -48,7 +48,7 @@ export default function SignInPage() {
     <SignInContainer>
       <form onSubmit={handleLogin}>
         <LogoImage src={Logo} alt="Logo" />
-        <h1>Shop Now</h1>
+        <h1>Pup Glam</h1>
         <InputField
           placeholder="E-mail"
           type="email"
