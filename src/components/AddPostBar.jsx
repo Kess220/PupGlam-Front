@@ -70,7 +70,6 @@ const AddPostBar = () => {
       setPostDescription("");
       setPostImageURL("");
       setSelectedCachorroId("");
-      window.location.reload();
     } catch (error) {
       console.error("Erro ao adicionar a postagem:", error);
     }
@@ -96,7 +95,6 @@ const AddPostBar = () => {
         cachorro.id === dogId ? { ...cachorro, ativo: newStatus } : cachorro
       );
       setUserCachorros(updatedCachorros);
-      window.location.reload();
     } catch (error) {
       console.error("Erro ao atualizar o status do cachorro:", error);
     }

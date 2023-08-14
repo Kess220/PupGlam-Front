@@ -7,7 +7,7 @@ import axios from "axios";
 export default function SignInPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState(""); // Mudança: substituído 'password' por 'senha'
+  const [senha, setSenha] = useState("");
   const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
@@ -15,7 +15,7 @@ export default function SignInPage() {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/signin`, // Verifique se a URL está correta
+        `${import.meta.env.VITE_API_URL}/signin`,
         {
           email,
           senha,
