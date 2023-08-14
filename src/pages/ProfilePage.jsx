@@ -5,6 +5,7 @@ import styled from "styled-components";
 import PostCard from "../components/PostCard";
 import AddPostBar from "../components/AddPostBar";
 import TitleBar from "../components/TitleBar";
+import ReactInputMask from "react-input-mask";
 
 export default function UserProfile() {
   const { id_cachorro } = useParams();
@@ -61,6 +62,9 @@ export default function UserProfile() {
   const closeContactModal = () => {
     setIsContactModalOpen(false);
   };
+  function formatPhoneNumber(phoneNumber) {
+    return phoneNumber.replace(/\D/g, "");
+  }
 
   return (
     <>
@@ -95,7 +99,13 @@ export default function UserProfile() {
               <ContactDetails>
                 <ContactItem>
                   <ContactLabel>Número de Celular:</ContactLabel>
-                  <ContactValue>{contactInfo.telefone}</ContactValue>
+                  <ContactValue>
+                    {contactInfo?.telefone &&
+                      formatPhoneNumber(contactInfo.telefone).replace(
+                        /^(\d{2})(\d{5})(\d{4})$/,
+                        "($1) $2-$3"
+                      )}
+                  </ContactValue>
                 </ContactItem>
                 <ContactItem>
                   <ContactLabel>Email:</ContactLabel>
@@ -111,7 +121,6 @@ export default function UserProfile() {
   );
 }
 const DogDescription = styled.div`
-  margin: 15px 0;
   text-align: center;
 
   h2 {
@@ -128,9 +137,9 @@ const DogDescription = styled.div`
 `;
 
 const Tutor = styled.div`
-  margin-top: 15px;
+  margin-top: 66px;
   h1 {
-    color: #007bff;
+    color: #fff;
   }
 `;
 

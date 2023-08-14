@@ -70,6 +70,7 @@ const AddPostBar = () => {
       setPostDescription("");
       setPostImageURL("");
       setSelectedCachorroId("");
+      window.location.reload();
     } catch (error) {
       console.error("Erro ao adicionar a postagem:", error);
     }
@@ -135,16 +136,16 @@ const AddPostBar = () => {
       {isAdding && (
         <Backdrop>
           <AddPostForm>
-            <FormTitle>Enter post details:</FormTitle>
+            <FormTitle>Detalhes do novo post:</FormTitle>
             <Input
               type="text"
-              placeholder="Post description"
+              placeholder="Descrição do post"
               value={postDescription}
               onChange={(e) => setPostDescription(e.target.value)}
             />
             <Input
               type="text"
-              placeholder="Image URL"
+              placeholder="Imagem URL"
               value={postImageURL}
               onChange={(e) => setPostImageURL(e.target.value)}
             />
@@ -152,7 +153,7 @@ const AddPostBar = () => {
               value={selectedCachorroId}
               onChange={(e) => setSelectedCachorroId(e.target.value)}
             >
-              <option value="">Select a dog</option>
+              <option value="">Selecionar Cachorro</option>
               {userCachorros.map((cachorro) => (
                 <option key={cachorro.id} value={cachorro.id}>
                   {cachorro.nome}
@@ -160,9 +161,11 @@ const AddPostBar = () => {
               ))}
             </SelectCachorro>
             <ButtonContainer>
-              <SubmitButton onClick={handlePostSubmit}>Add Post</SubmitButton>
+              <SubmitButton onClick={handlePostSubmit}>
+                Adicionar Postagem
+              </SubmitButton>
               <CancelButton onClick={() => setIsAdding(false)}>
-                Cancel
+                Cancelar
               </CancelButton>
             </ButtonContainer>
           </AddPostForm>
@@ -171,9 +174,11 @@ const AddPostBar = () => {
       {showProfileModal && (
         <Backdrop>
           <ProfileModal>
-            <ProfileTitle>User Profile</ProfileTitle>
+            <ProfileTitle>Usuário</ProfileTitle>
             <ProfileName>
-              {userCachorros.length > 0 ? userCachorros[0].nome_tutor : ""}
+              {userCachorros.length > 0
+                ? userCachorros[0].nome_tutor
+                : "" || "Cadastre um cachorro primeiro"}
             </ProfileName>
             <CachorroList>
               {userCachorros.map((cachorro) => (
@@ -181,7 +186,7 @@ const AddPostBar = () => {
               ))}
             </CachorroList>
             <CloseButton onClick={() => setShowProfileModal(false)}>
-              Close
+              Fechar
             </CloseButton>
           </ProfileModal>
         </Backdrop>
@@ -189,12 +194,12 @@ const AddPostBar = () => {
       {isDogModalOpen && (
         <Backdrop>
           <DogModal>
-            <ModalTitle>Select a Dog</ModalTitle>
+            <ModalTitle>Status do Cachorro</ModalTitle>
             <SelectCachorro
               value={selectedCachorroId}
               onChange={(e) => setSelectedCachorroId(e.target.value)}
             >
-              <option value="">Select a dog</option>
+              <option value="">Selecionar </option>
               {userCachorros.map((cachorro) => (
                 <option key={cachorro.id} value={cachorro.id}>
                   {cachorro.nome}
@@ -210,9 +215,9 @@ const AddPostBar = () => {
               }}
               disabled={selectedCachorroId === ""}
             >
-              {selectedDogStatus ? "Deactivate" : "Activate"} Dog
+              Ativar
             </DogStatusButton>
-            <CancelButton onClick={handleCloseDogModal}>Cancel</CancelButton>
+            <CancelButton onClick={handleCloseDogModal}>Cancelar</CancelButton>
           </DogModal>
         </Backdrop>
       )}
@@ -468,6 +473,7 @@ const SubmitButton = styled.button`
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
   margin-right: 21px;
+  width: 75%;
 
   &:hover {
     background-color: #0056b3;
@@ -484,7 +490,6 @@ const CancelButton = styled.button`
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
   width: 75%;
-  margin-top: 20px;
 
   &:hover {
     background-color: #999;

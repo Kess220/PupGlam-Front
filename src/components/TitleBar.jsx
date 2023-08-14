@@ -52,6 +52,7 @@ const AddIcon = styled(FiPlusCircle)`
   color: #fff;
   cursor: pointer;
   margin-left: auto;
+  margin-right: 10px;
 `;
 
 const ModalBackdrop = styled.div`
@@ -98,6 +99,7 @@ const SubmitButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   width: 100%;
+  margin-top: 10px;
 
   &:hover {
     background-color: #0056b3;
@@ -122,6 +124,17 @@ const AddDogModal = ({ onClose }) => {
   };
 
   const handleAddDogSubmit = async () => {
+    // Verificar se algum campo obrigatório está vazio
+    const requiredFields = ["nome", "raca", "idade", "descricao"];
+    const missingFields = requiredFields.filter((field) => !dogData[field]);
+
+    if (missingFields.length > 0) {
+      alert(
+        `Os seguintes campos são obrigatórios: ${missingFields.join(", ")}`
+      );
+      return;
+    }
+
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
