@@ -115,12 +115,13 @@ const DogDescription = styled.div`
   text-align: center;
 
   h2 {
-    color: #007bff;
+    color: #fff;
     margin-bottom: 5px;
     font-size: inherit;
   }
 
   .dog-description {
+    color: #fff;
     font-family: inherit;
     font-size: 16px;
   }
@@ -137,6 +138,7 @@ const PostContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 20px;
   margin-top: 20px;
   padding: 20px;
@@ -146,6 +148,14 @@ const PostScroll = styled.div`
   overflow: auto;
   max-height: 60vh;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  ::-webkit-scrollbar {
+    display: none;
+  }
 `;
 
 const HomeContainer = styled.div`
@@ -154,6 +164,7 @@ const HomeContainer = styled.div`
   height: calc(100vh - 50px);
   overflow: auto;
   position: relative;
+  background-color: #1c4698;
 `;
 
 const ContactModal = styled.div`

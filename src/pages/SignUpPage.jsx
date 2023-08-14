@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
 import { Link } from "react-router-dom";
-import Logo from "/store.png";
+import Logo from "/pet.png";
+import InputMask from "react-input-mask";
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -13,6 +14,8 @@ export default function SignUpPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [cpf, setCpf] = useState("");
   const [telefone, setTelefone] = useState("");
+  const sanitizedCpf = cpf.replace(/\D/g, "");
+  const sanitizedTelefone = telefone.replace(/\D/g, "");
 
   const handleNameChange = (event) => {
     setName(event.target.value);
@@ -52,8 +55,8 @@ export default function SignUpPage() {
         email,
         senha: password,
         confirmarSenha: confirmPassword,
-        cpf,
-        telefone,
+        cpf: sanitizedCpf, // Envia o CPF sem a formatação da máscara
+        telefone: sanitizedTelefone, // Envia o telefone sem a formatação da máscara
       });
 
       // Redirecionar o usuário para a página de login
@@ -75,21 +78,21 @@ export default function SignUpPage() {
     <SignUpContainer>
       <LogoImage src={Logo} alt="Logo" />
       <form onSubmit={handleSignUpSubmit}>
-        <input
+        <Input
           placeholder="Nome"
           data-test="name"
           type="text"
           value={name}
           onChange={handleNameChange}
         />
-        <input
+        <Input
           placeholder="E-mail"
           type="email"
           data-test="email"
           value={email}
           onChange={handleEmailChange}
         />
-        <input
+        <Input
           placeholder="Senha"
           data-test="password"
           type="password"
@@ -97,7 +100,7 @@ export default function SignUpPage() {
           value={password}
           onChange={handlePasswordChange}
         />
-        <input
+        <Input
           placeholder="Confirme a senha"
           data-test="conf-password"
           type="password"
@@ -105,17 +108,33 @@ export default function SignUpPage() {
           value={confirmPassword}
           onChange={handleConfirmPasswordChange}
         />
-        <input
+        <InputMask
+          style={{
+            width: "50%",
+            padding: "10px",
+            marginBottom: "10px",
+            border: "none",
+            borderRadius: "4px",
+            fontSize: "16px",
+          }}
           placeholder="CPF"
+          mask="999.999.999-99"
           data-test="cpf"
-          type="text"
           value={cpf}
           onChange={handleCpfChange}
         />
-        <input
+        <InputMask
+          style={{
+            width: "50%",
+            padding: "10px",
+            marginBottom: "10px",
+            border: "none",
+            borderRadius: "4px",
+            fontSize: "16px",
+          }}
           placeholder="Telefone"
+          mask="(99) 99999-9999"
           data-test="telefone"
-          type="text"
           value={telefone}
           onChange={handleTelefoneChange}
         />
@@ -129,16 +148,27 @@ export default function SignUpPage() {
   );
 }
 
+const Input = styled.input`
+  width: 50%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+`;
+
 const SignUpContainer = styled.section`
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background-color: #1c4698;
 `;
 
 const StyledButton = styled.button`
-  background-color: #614e93;
+  background-color: #b46e3f;
+  width: 30%;
   color: white;
   padding: 10px 20px;
   border: none;

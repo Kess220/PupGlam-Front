@@ -53,6 +53,12 @@ const PostCard = ({ post }) => {
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
 
+    if (newComment.trim() === "") {
+      // Se o comentário estiver vazio ou apenas contiver espaços em branco, exiba um alerta.
+      alert("Por favor, insira um comentário antes de enviar.");
+      return;
+    }
+
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_API_URL}/postagem/${post.id}/comentar`,
@@ -124,6 +130,15 @@ const PostCard = ({ post }) => {
       console.error("Erro ao curtir/descurtir postagem:", error);
     }
   };
+  const handlePawIconClick = () => {
+    if (post.cachorro_disponivel_contratacao) {
+      window.location.href = `/profile/${post.id_cachorro}`;
+    } else {
+      alert(
+        "O cachorro está de férias e não está disponível para contratação no momento."
+      );
+    }
+  };
 
   const MAX_VISIBLE_COMMENTS = 3;
   const visibleComments = showAllComments
@@ -149,13 +164,10 @@ const PostCard = ({ post }) => {
           <Comments>{comments.length}</Comments>
         </Icon>
         <Icon>
-          <Link to={`/profile/${post.id_cachorro}`}>
-            {post.cachorro_disponivel_contratacao ? (
-              <IoMdPaw color="green" />
-            ) : (
-              <IoMdPaw color="red" />
-            )}
-          </Link>
+          <IoMdPaw
+            color={post.cachorro_disponivel_contratacao ? "green" : "red"}
+            onClick={handlePawIconClick}
+          />
         </Icon>
       </Interactions>
       <Description>{post.descricao}</Description>

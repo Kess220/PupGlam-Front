@@ -34,13 +34,16 @@ export default function HomePage() {
 
   return (
     <>
-      <TitleBar></TitleBar>
-
       <HomeContainer>
+        <TitleBar></TitleBar>
+
         <Feed>
-          {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
-          ))}
+          {posts
+            .slice()
+            .reverse()
+            .map((post) => (
+              <PostCard key={post.id} post={post} />
+            ))}
         </Feed>
       </HomeContainer>
       <AddPostBar />
@@ -50,10 +53,10 @@ export default function HomePage() {
 
 const HomeContainer = styled.div`
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   min-height: 100vh;
-  background-color: #fafafa;
+  background-color: #1c4698;
 `;
 
 const Feed = styled.div`
@@ -62,4 +65,5 @@ const Feed = styled.div`
   align-items: center;
   width: 100%;
   max-width: 600px;
+  margin-top: 54px;
 `;

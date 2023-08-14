@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiPlusCircle, FiUser, FiLogOut } from "react-icons/fi";
+import { FiPlusCircle, FiUser, FiLogOut, FiHome } from "react-icons/fi";
 import { IoMdPaw } from "react-icons/io";
 
 import styled from "styled-components";
@@ -125,6 +125,10 @@ const AddPostBar = () => {
       <IconContainer>
         <AddIcon onClick={handleAddClick} color="#fff" />
         <UserIcon onClick={() => setShowProfileModal(true)} color="#fff" />
+        <HomeIcon onClick={() => navigate("/home")} title="Home">
+          <FiHome size={32} color="#fff" />
+        </HomeIcon>
+
         <LogoutIcon onClick={handleLogout} color="#fff" />
         <IoMdPaw onClick={handleDogIconClick} size={37} color="#fff" />
       </IconContainer>
@@ -215,6 +219,17 @@ const AddPostBar = () => {
     </BarContainer>
   );
 };
+const HomeIcon = styled.div`
+  font-size: 36px;
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+`;
+
 const DogModal = styled.div`
   background-color: #fff;
   border-radius: 8px;
@@ -284,16 +299,15 @@ const ModalActionButton = styled.button`
   }
 `;
 const DogStatusButton = styled.button`
-  background-color: ${(props) => (props.active ? "#00cc00" : "#ff0000")};
+  background-color: #1c4698;
   color: #fff;
   padding: 6px 12px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
-  width: 48%;
+  width: 75%;
 
   &:hover {
-    background-color: ${(props) => (props.active ? "#008800" : "#cc0000")};
     transform: scale(1.05);
   }
 `;
@@ -453,6 +467,7 @@ const SubmitButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
+  margin-right: 21px;
 
   &:hover {
     background-color: #0056b3;
@@ -468,6 +483,8 @@ const CancelButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.3s ease;
+  width: 75%;
+  margin-top: 20px;
 
   &:hover {
     background-color: #999;

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
-import Logo from "/store.png";
+import Logo from "/pet.png";
 import axios from "axios";
 
 export default function SignInPage() {
@@ -18,7 +18,7 @@ export default function SignInPage() {
         `${import.meta.env.VITE_API_URL}/signin`, // Verifique se a URL está correta
         {
           email,
-          senha, 
+          senha,
         }
       );
 
@@ -49,20 +49,18 @@ export default function SignInPage() {
       <form onSubmit={handleLogin}>
         <LogoImage src={Logo} alt="Logo" />
         <h1>Shop Now</h1>
-        <input
+        <InputField
           placeholder="E-mail"
-          data-test="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
-        <input
+        <InputField
           placeholder="Senha"
-          data-test="senha" // Mudança: substituído 'password' por 'senha'
           type="password"
           autoComplete="new-password"
-          value={senha} // Mudança: substituído 'password' por 'senha'
-          onChange={(e) => setSenha(e.target.value)} // Mudança: substituído 'password' por 'senha'
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
         />
         <StyledButton data-test="sign-in-submit" type="submit">
           Login
@@ -70,16 +68,33 @@ export default function SignInPage() {
         {error && <ErrorMessage>{error}</ErrorMessage>}
       </form>
 
-      <Link to="/register">Não tem uma conta? Cadastre-se aqui!</Link>
+      <RegisterLink to="/register">
+        <h2>Não tem uma conta? Cadastre-se aqui!</h2>
+      </RegisterLink>
     </SignInContainer>
   );
 }
+
+const InputField = styled.input`
+  width: 50%;
+  font-size: 16px;
+  padding: 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  margin-bottom: 10px;
+  outline: none;
+
+  &:focus {
+    border-color: #fca311;
+  }
+`;
 const SignInContainer = styled.section`
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background-color: #1c4698;
 `;
 
 const ErrorMessage = styled.p`
@@ -88,8 +103,9 @@ const ErrorMessage = styled.p`
 `;
 
 const StyledButton = styled.button`
-  background-color: #614e93;
-  color: white;
+  background-color: #b46e3f;
+  width: 50%;
+  color: #fff;
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
@@ -106,4 +122,19 @@ const LogoImage = styled.img`
   &:hover {
     transform: scale(1.1);
   }
+`;
+
+const RegisterLink = styled(Link)`
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 18px;
+  color: white;
+  text-decoration: none;
+  padding-top: 30px;
+  margin-top: 20px;
+  border-radius: 10px;
+  height: 30px;
+  width: 22%;
+  display: flex;
+  justify-content: space-around;
 `;
