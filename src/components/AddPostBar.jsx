@@ -19,7 +19,6 @@ const AddPostBar = () => {
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   useEffect(() => {
-    // Função para carregar os cachorros do usuário
     const fetchUserCachorros = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -38,6 +37,12 @@ const AddPostBar = () => {
     };
 
     fetchUserCachorros();
+
+    const intervalId = setInterval(fetchUserCachorros, 2000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
   }, []);
 
   const handleAddClick = () => {
