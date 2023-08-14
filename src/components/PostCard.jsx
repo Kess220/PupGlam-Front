@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { FaHeart, FaComment } from "react-icons/fa";
 import { IoMdPaw } from "react-icons/io";
@@ -11,6 +11,7 @@ const PostCard = ({ post }) => {
   const [newComment, setNewComment] = useState("");
   const [usuariosQueCurtiram, setUsuariosQueCurtiram] = useState([]);
   const [showAllComments, setShowAllComments] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -132,7 +133,7 @@ const PostCard = ({ post }) => {
   };
   const handlePawIconClick = () => {
     if (post.cachorro_disponivel_contratacao) {
-      window.location.href = `/profile/${post.id_cachorro}`;
+      navigate(`/profile/${post.id_cachorro}`);
     } else {
       alert(
         "O cachorro está de férias e não está disponível para contratação no momento."
