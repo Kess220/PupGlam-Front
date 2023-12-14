@@ -13,59 +13,44 @@ const PostCard = ({ post }) => {
   const [showAllComments, setShowAllComments] = useState(false);
   const navigate = useNavigate();
 
+  const fetchPostDetails = async () => {
+    try {
+      const headers = {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      };
+
+      const [commentsResponse, likesResponse] = await Promise.all([
+        axios.get(`${import.meta.env.VITE_API_URL}/post/comments/${post.id}`, {
+          headers,
+        }),
+        axios.get(`${import.meta.env.VITE_API_URL}/post/likes/${post.id}`, {
+          headers,
+        }),
+      ]);
+
+      setComments(commentsResponse.data.comments);
+      setLikesCount(likesResponse.data.likesCount);
+      setUsuariosQueCurtiram(likesResponse.data.usersWhoLiked);
+    } catch (error) {
+      console.error("Erro ao obter detalhes do post:", error);
+    }
+  };
   useEffect(() => {
-    const fetchComments = async () => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/postagem/${post.id}/comentarios`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        setComments(response.data.comments);
-      } catch (error) {
-        console.error("Erro ao obter os comentários:", error);
-      }
-    };
-
-    const fetchLikesCount = async () => {
-      try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/postagem/${post.id}/curtidas`,
-          {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
-            },
-          }
-        );
-        setLikesCount(response.data.likesCount);
-        setUsuariosQueCurtiram(response.data.usuariosQueCurtiram);
-      } catch (error) {
-        console.error("Erro ao obter o número de curtidas:", error);
-      }
-    };
-
-    fetchComments();
-    fetchLikesCount();
+    fetchPostDetails();
   }, [post.id]);
 
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
 
     if (newComment.trim() === "") {
-      // Se o comentário estiver vazio ou apenas contiver espaços em branco, exiba um alerta.
       alert("Por favor, insira um comentário antes de enviar.");
       return;
     }
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/postagem/${post.id}/comentar`,
-        {
-          texto: newComment,
-        },
+        `${import.meta.env.VITE_API_URL}/post/comment/${post.id}`,
+        { text: newComment },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -73,8 +58,14 @@ const PostCard = ({ post }) => {
         }
       );
 
-      setComments([...comments, response.data.comentario]);
+      setComments((prevComments) => [
+        ...prevComments,
+        response.data.comentario,
+      ]);
       setNewComment("");
+
+      // Atualizar as informações do post, incluindo os comentários
+      await fetchPostDetails();
     } catch (error) {
       console.error("Erro ao adicionar comentário:", error);
     }
@@ -83,57 +74,49 @@ const PostCard = ({ post }) => {
   const handleToggleLike = async () => {
     try {
       const token = localStorage.getItem("token");
-      const url = `${import.meta.env.VITE_API_URL}/postagem/${post.id}/curtir`;
-      const unlikingUrl = `${import.meta.env.VITE_API_URL}/postagem/${
+      const url = `${import.meta.env.VITE_API_URL}/post/like/${post.id}`;
+      const unlikingUrl = `${import.meta.env.VITE_API_URL}/post/unlike/${
         post.id
-      }/descurtir`;
+      }`;
 
       if (usuariosQueCurtiram.includes(localStorage.getItem("userId"))) {
-        // Descurtir usando o método DELETE
         await axios.delete(unlikingUrl, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
       } else {
         try {
           await axios.post(
             url,
             {},
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
+            { headers: { Authorization: `Bearer ${token}` } }
           );
         } catch (error) {
-          if (error.response && error.response.status === 400) {
+          if (error.response && error.response.status === 409) {
             await axios.delete(unlikingUrl, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+              headers: { Authorization: `Bearer ${token}` },
             });
           } else {
             console.error("Erro ao curtir postagem:", error);
           }
         }
       }
+
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/postagem/${post.id}/curtidas`,
+        `${import.meta.env.VITE_API_URL}/post/likes/${post.id}`,
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
+
       setLikesCount(response.data.likesCount);
     } catch (error) {
       console.error("Erro ao curtir/descurtir postagem:", error);
     }
   };
+
   const handlePawIconClick = () => {
-    if (post.cachorro_disponivel_contratacao) {
-      navigate(`/profile/${post.id_cachorro}`);
+    if (post?.dog_hireable) {
+      navigate(`/profile/${post?.dog_id}`);
     } else {
       alert(
         "O cachorro está de férias e não está disponível para contratação no momento."
@@ -149,11 +132,11 @@ const PostCard = ({ post }) => {
   return (
     <Card>
       <DogInfo>
-        <DogName>{post.nome_cachorro}</DogName>
-        <DogAge>{post.idade_cachorro} anos</DogAge>
+        <DogName>{post.dog_name}</DogName>
+        <DogAge>{post.dog_age} anos</DogAge>
       </DogInfo>
       <ImageContainer>
-        <PostImage src={post.imagem_url} alt="Post" />
+        <PostImage src={post.image_url} alt="Post" />
       </ImageContainer>
       <Interactions>
         <Icon onClick={handleToggleLike}>
@@ -166,26 +149,27 @@ const PostCard = ({ post }) => {
         </Icon>
         <Icon>
           <IoMdPaw
-            color={post.cachorro_disponivel_contratacao ? "green" : "red"}
+            color={post.dog_hireable ? "green" : "red"}
             onClick={handlePawIconClick}
           />
         </Icon>
       </Interactions>
-      <Description>{post.descricao}</Description>
+      <Description>{post.description}</Description>
       <Divider />
       <CommentsSection>
         <h3>Comentários</h3>
         {visibleComments.map((comment) => (
-          <Comment key={comment.id}>{comment.texto}</Comment>
+          <Comment key={comment?.id}>{comment && comment.text}</Comment>
         ))}
         {comments.length > MAX_VISIBLE_COMMENTS && (
           <ViewCommentsButton
+            key="view-more-comments"
             onClick={() => setShowAllComments(!showAllComments)}
           >
             {showAllComments ? "Ver Menos Comentários" : "Ver Mais Comentários"}
           </ViewCommentsButton>
         )}
-        <CommentForm onSubmit={handleCommentSubmit}>
+        <CommentForm key="comment-form" onSubmit={handleCommentSubmit}>
           <textarea
             placeholder="Adicione um comentário..."
             value={newComment}

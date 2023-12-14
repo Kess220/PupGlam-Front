@@ -23,7 +23,7 @@ const AddPostBar = () => {
       try {
         const token = localStorage.getItem("token");
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/cachorros`,
+          `${import.meta.env.VITE_API_URL}/alldogs`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -38,7 +38,7 @@ const AddPostBar = () => {
 
     fetchUserCachorros();
 
-    const intervalId = setInterval(fetchUserCachorros, 2000);
+    const intervalId = setInterval(fetchUserCachorros, 112000);
 
     return () => {
       clearInterval(intervalId);

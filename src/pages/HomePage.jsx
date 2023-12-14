@@ -13,7 +13,7 @@ export default function HomePage() {
     fetchPosts();
 
     // Set up the interval to fetch posts every 2 seconds
-    const intervalId = setInterval(fetchPosts, 2000);
+    const intervalId = setInterval(fetchPosts, 1000);
 
     // Clean up the interval when the component is unmounted
     return () => {
@@ -25,14 +25,11 @@ export default function HomePage() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/postagem`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/post`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       setPosts(response.data.posts);
       console.log("Posts received from API:", response.data.posts);
