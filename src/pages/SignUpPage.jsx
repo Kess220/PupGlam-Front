@@ -1,75 +1,92 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Logo from "/pet.png";
-import InputMask from "react-input-mask";
+import InputField from "../components/InputField";
+import MaskedInputField from "../components/MaskedInputField";
+import Swal from "sweetalert2";
 
 export default function SignUpPage() {
   const navigate = useNavigate();
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [cpf, setCpf] = useState("");
-  const [telefone, setTelefone] = useState("");
-  const sanitizedCpf = cpf.replace(/\D/g, "");
-  const sanitizedTelefone = telefone.replace(/\D/g, "");
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    cpf: "",
+    telefone: "",
+  });
 
-  const handleNameChange = (event) => {
-    setName(event.target.value);
-  };
-
-  const handleEmailChange = (event) => {
-    setEmail(event.target.value);
-  };
-
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-  };
-
-  const handleConfirmPasswordChange = (event) => {
-    setConfirmPassword(event.target.value);
-  };
-
-  const handleCpfChange = (event) => {
-    setCpf(event.target.value);
-  };
-
-  const handleTelefoneChange = (event) => {
-    setTelefone(event.target.value);
+  const handleInputChange = (fieldName) => (event) => {
+    setFormData({ ...formData, [fieldName]: event.target.value });
   };
 
   const handleSignUpSubmit = async (event) => {
     event.preventDefault();
 
+    const { name, email, password, confirmPassword, cpf, telefone } = formData;
+
+    if (!name || !email || !password || !confirmPassword || !cpf || !telefone) {
+      Swal.fire({
+        icon: "question",
+        title: "Oops...",
+        text: "Todos os campos devem ser preenchidos.",
+        customClass: {
+          popup: "custom-popup-class",
+          icon: "custom-icon-class",
+        },
+      });
+      return;
+    }
+
     if (password !== confirmPassword) {
-      alert("As senhas não coincidem.");
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "As senhas não coincidem.",
+        customClass: {
+          popup: "custom-popup-class",
+          icon: "custom-icon-class",
+        },
+      });
       return;
     }
 
     try {
       await axios.post(`${import.meta.env.VITE_API_URL}/signup`, {
-        nome: name,
+        name,
         email,
-        senha: password,
-        confirmarSenha: confirmPassword,
-        cpf: sanitizedCpf, // Envia o CPF sem a formatação da máscara
-        telefone: sanitizedTelefone, // Envia o telefone sem a formatação da máscara
+        password,
+        confirmPassword,
+        cpf: cpf.replace(/\D/g, ""),
+        phone: telefone.replace(/\D/g, ""),
       });
 
-      // Redirecionar o usuário para a página de login
       navigate("/");
     } catch (error) {
       if (error.response && error.response.status === 409) {
-        alert("Este email já está sendo utilizado.");
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "E-mail já está sendo utilizado",
+          customClass: {
+            popup: "custom-popup-class",
+            icon: "custom-icon-class",
+          },
+        });
       } else {
         console.error("Erro ao cadastrar usuário:", error);
         console.log(`${import.meta.env.VITE_API_URL}`);
-        alert(
-          "Erro ao cadastrar usuário. Verifique os campos e tente novamente."
-        );
+        Swal.fire({
+          icon: "error",
+          title: "Oops...",
+          text: "Erro ao cadastrar o usuário, verifique os campos e tente novamente!",
+          customClass: {
+            popup: "custom-popup-class",
+            icon: "custom-icon-class",
+          },
+        });
       }
     }
   };
@@ -78,65 +95,49 @@ export default function SignUpPage() {
     <SignUpContainer>
       <LogoImage src={Logo} alt="Logo" />
       <form onSubmit={handleSignUpSubmit}>
-        <Input
+        <InputField
           placeholder="Nome"
-          data-test="name"
           type="text"
-          value={name}
-          onChange={handleNameChange}
+          value={formData.name}
+          onChange={handleInputChange("name")}
+          dataTest="name"
         />
-        <Input
+        <InputField
           placeholder="E-mail"
           type="email"
-          data-test="email"
-          value={email}
-          onChange={handleEmailChange}
+          value={formData.email}
+          onChange={handleInputChange("email")}
+          dataTest="email"
         />
-        <Input
+        <InputField
           placeholder="Senha"
-          data-test="password"
           type="password"
           autoComplete="new-password"
-          value={password}
-          onChange={handlePasswordChange}
+          value={formData.password}
+          onChange={handleInputChange("password")}
+          dataTest="password"
         />
-        <Input
+        <InputField
           placeholder="Confirme a senha"
-          data-test="conf-password"
           type="password"
           autoComplete="new-password"
-          value={confirmPassword}
-          onChange={handleConfirmPasswordChange}
+          value={formData.confirmPassword}
+          onChange={handleInputChange("confirmPassword")}
+          dataTest="conf-password"
         />
-        <InputMask
-          style={{
-            width: "50%",
-            padding: "10px",
-            marginBottom: "10px",
-            border: "none",
-            borderRadius: "4px",
-            fontSize: "16px",
-          }}
+        <MaskedInputField
           placeholder="CPF"
           mask="999.999.999-99"
-          data-test="cpf"
-          value={cpf}
-          onChange={handleCpfChange}
+          value={formData.cpf}
+          onChange={handleInputChange("cpf")}
+          dataTest="cpf"
         />
-        <InputMask
-          style={{
-            width: "50%",
-            padding: "10px",
-            marginBottom: "10px",
-            border: "none",
-            borderRadius: "4px",
-            fontSize: "16px",
-          }}
+        <MaskedInputField
           placeholder="Telefone"
           mask="(99) 99999-9999"
-          data-test="telefone"
-          value={telefone}
-          onChange={handleTelefoneChange}
+          value={formData.telefone}
+          onChange={handleInputChange("telefone")}
+          dataTest="telefone"
         />
         <StyledButton data-test="sign-up-submit" type="submit">
           Cadastrar
@@ -147,15 +148,6 @@ export default function SignUpPage() {
     </SignUpContainer>
   );
 }
-
-const Input = styled.input`
-  width: 50%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: none;
-  border-radius: 4px;
-  font-size: 16px;
-`;
 
 const SignUpContainer = styled.section`
   height: 100vh;

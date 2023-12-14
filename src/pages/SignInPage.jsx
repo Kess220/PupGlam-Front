@@ -3,11 +3,12 @@ import styled from "styled-components";
 import { Link, useNavigate } from "react-router-dom";
 import Logo from "/pet.png";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default function SignInPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const handleLogin = async (e) => {
@@ -18,30 +19,64 @@ export default function SignInPage() {
         `${import.meta.env.VITE_API_URL}/signin`,
         {
           email,
-          senha,
+          password,
         }
       );
 
       const { token, userId } = response.data;
 
-      // Armazenar o token e o userId no localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("userId", userId);
       localStorage.setItem("userEmail", email);
 
-      // Redirecionar o usuário para a rota "/home"
       navigate("/home");
-      console.log("Login feito com sucesso!");
+
+      showSuccessMessage();
+
+      console.log("Login successful!");
       console.log(token);
     } catch (error) {
-      if (error.response && error.response.data) {
+      if (error?.response && error?.response.data) {
         setError(error.response.data.error);
-        alert(error.response.data.error); // Exibe o erro em um alerta
+        if (error.response.status === 401) {
+          showAlert(
+            "error",
+            "Credenciais incorretas. Verifique seu e-mail e senha."
+          );
+        } else {
+          showAlert("error", error.response.data.error);
+        }
       } else {
-        setError("Erro ao fazer login.");
-        alert("Erro ao fazer login."); // Exibe uma mensagem genérica de erro em um alerta
+        setError("Error logging in.");
+        showAlert("error", "Error logging in.");
       }
     }
+  };
+
+  const showSuccessMessage = () => {
+    Swal.fire({
+      position: "top-end",
+      icon: "success",
+      title: "Login feito com sucesso",
+      showConfirmButton: false,
+      timer: 1500,
+      customClass: {
+        popup: "custom-popup-class",
+        icon: "custom-icon-class",
+      },
+    });
+  };
+
+  const showAlert = (icon, text) => {
+    Swal.fire({
+      icon: icon,
+      title: "Oops...",
+      text: text,
+      customClass: {
+        popup: "custom-popup-class",
+        icon: "custom-icon-class",
+      },
+    });
   };
 
   return (
@@ -56,11 +91,11 @@ export default function SignInPage() {
           onChange={(e) => setEmail(e.target.value)}
         />
         <InputField
-          placeholder="Senha"
+          placeholder="Password"
           type="password"
           autoComplete="new-password"
-          value={senha}
-          onChange={(e) => setSenha(e.target.value)}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
         <StyledButton data-test="sign-in-submit" type="submit">
           Login
@@ -69,7 +104,7 @@ export default function SignInPage() {
       </form>
 
       <RegisterLink to="/register">
-        <h2>Não tem uma conta? Cadastre-se aqui!</h2>
+        <h2>Cadastre-se aqui!</h2>
       </RegisterLink>
     </SignInContainer>
   );
@@ -87,7 +122,12 @@ const InputField = styled.input`
   &:focus {
     border-color: #fca311;
   }
+
+  @media (max-width: 768px) {
+    width: 80%;
+  }
 `;
+
 const SignInContainer = styled.section`
   height: 100vh;
   display: flex;
@@ -111,6 +151,10 @@ const StyledButton = styled.button`
   border-radius: 4px;
   font-size: 16px;
   cursor: pointer;
+
+  @media (max-width: 768px) {
+    width: 80%;
+  }
 `;
 
 const LogoImage = styled.img`
@@ -134,7 +178,11 @@ const RegisterLink = styled(Link)`
   margin-top: 20px;
   border-radius: 10px;
   height: 30px;
-  width: 22%;
+  width: 80%;
   display: flex;
   justify-content: space-around;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
 `;

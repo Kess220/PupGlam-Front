@@ -6,6 +6,11 @@ const GlobalStyle = createGlobalStyle`
         font-style: normal;
         font-weight: 400;
     }
+
+    .custom-popup-class {
+    font-family: 'Raleway'; 
+ }
+
     button {
         outline: none;
         border: none;
@@ -52,6 +57,6 @@ const GlobalStyle = createGlobalStyle`
         text-decoration: none;
         padding-top: 30px;
     }
-`
+`;
 
-export default GlobalStyle
+export default GlobalStyle;
