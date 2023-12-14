@@ -2,47 +2,39 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiPlusCircle, FiUser, FiLogOut, FiHome } from "react-icons/fi";
 import { IoMdPaw } from "react-icons/io";
-
 import styled from "styled-components";
 import axios from "axios";
+import PropTypes from "prop-types";
 
-const AddPostBar = () => {
+const AddPostBar = ({ fetchAndSetData }) => {
   const navigate = useNavigate();
   const [isDogModalOpen, setIsDogModalOpen] = useState(false);
-  const [selectedDogId, setSelectedDogId] = useState(null);
-  const [selectedDogStatus, setSelectedDogStatus] = useState(null);
   const [isAdding, setIsAdding] = useState(false);
   const [postDescription, setPostDescription] = useState("");
   const [postImageURL, setPostImageURL] = useState("");
-  const [selectedCachorroId, setSelectedCachorroId] = useState("");
-  const [userCachorros, setUserCachorros] = useState([]);
+  const [selectedDogId, setSelectedDogId] = useState("");
+
+  const [userDogs, setUserDogs] = useState([]);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
+  const fetchUserDogs = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}/alldogs`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setUserDogs(response.data.dogs);
+    } catch (error) {
+      console.error("Error loading user dogs:", error);
+    }
+  };
   useEffect(() => {
-    const fetchUserCachorros = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/alldogs`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        setUserCachorros(response.data.cachorros);
-      } catch (error) {
-        console.error("Erro ao carregar cachorros do usuário:", error);
-      }
-    };
-
-    fetchUserCachorros();
-
-    const intervalId = setInterval(fetchUserCachorros, 112000);
-
-    return () => {
-      clearInterval(intervalId);
-    };
+    fetchUserDogs();
   }, []);
 
   const handleAddClick = () => {
@@ -55,12 +47,18 @@ const AddPostBar = () => {
     try {
       const token = localStorage.getItem("token");
 
+      console.log("Dados a serem enviados:", {
+        image_url: postImageURL,
+        description: postDescription,
+        dog_id: selectedDogId,
+      });
+
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/postagem`,
+        `${import.meta.env.VITE_API_URL}/post`,
         {
-          imagem_url: postImageURL,
-          descricao: postDescription,
-          id_cachorro: selectedCachorroId,
+          image_url: postImageURL,
+          description: postDescription,
+          dog_id: selectedDogId,
         },
         {
           headers: {
@@ -74,34 +72,55 @@ const AddPostBar = () => {
       setIsAdding(false);
       setPostDescription("");
       setPostImageURL("");
-      setSelectedCachorroId("");
+      setSelectedDogId("");
     } catch (error) {
-      console.error("Erro ao adicionar a postagem:", error);
+      console.error("Erro ao adicionar postagem:", error);
     }
   };
 
   const handleDogStatusToggle = async (dogId, newStatus) => {
     try {
-      const token = localStorage.getItem("token");
+      if (selectedDogId !== "") {
+        const token = localStorage.getItem("token");
 
-      await axios.put(
-        `${import.meta.env.VITE_API_URL}/cachorros/${dogId}/contratacao`,
-        null,
+        // Fazer uma requisição para obter as informações do cachorro
+        const response = await axios.get(
+          `${import.meta.env.VITE_API_URL}/dogs/${selectedDogId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const selectedDog = response.data.dog;
+
+        if (selectedDog) {
+          const newStatus = !selectedDog.hireable;
+
+          const requestBody = {
+            newStatus: newStatus,
+          };
+
+          // Atualizar o status do cachorro
+          await axios.put(
+            `${import.meta.env.VITE_API_URL}/dogs/${selectedDogId}/hiring`,
+            requestBody,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          fetchUserDogs();
+          fetchAndSetData();
+
+          handleCloseDogModal();
         }
-      );
-
-      handleCloseDogModal();
-      const updatedCachorros = userCachorros.map((cachorro) =>
-        cachorro.id === dogId ? { ...cachorro, ativo: newStatus } : cachorro
-      );
-      setUserCachorros(updatedCachorros);
+      }
     } catch (error) {
-      console.error("Erro ao atualizar o status do cachorro:", error);
+      console.error("Error updating dog status:", error);
     }
   };
 
@@ -109,6 +128,7 @@ const AddPostBar = () => {
     localStorage.removeItem("token");
     navigate("/");
   };
+
   const handleDogIconClick = () => {
     setIsDogModalOpen(true);
   };
@@ -116,12 +136,6 @@ const AddPostBar = () => {
   const handleCloseDogModal = () => {
     setIsDogModalOpen(false);
     setSelectedDogId(null);
-    setSelectedDogStatus(null);
-  };
-
-  const handleDogSelect = (dogId, dogStatus) => {
-    setSelectedDogId(dogId);
-    setSelectedDogStatus(dogStatus);
   };
 
   return (
@@ -132,43 +146,40 @@ const AddPostBar = () => {
         <HomeIcon onClick={() => navigate("/home")} title="Home">
           <FiHome size={32} color="#fff" />
         </HomeIcon>
-
         <LogoutIcon onClick={handleLogout} color="#fff" />
         <IoMdPaw onClick={handleDogIconClick} size={37} color="#fff" />
       </IconContainer>
       {isAdding && (
         <Backdrop>
           <AddPostForm>
-            <FormTitle>Detalhes do novo post:</FormTitle>
+            <FormTitle>New Post Details:</FormTitle>
             <Input
               type="text"
-              placeholder="Descrição do post"
+              placeholder="Post Description"
               value={postDescription}
               onChange={(e) => setPostDescription(e.target.value)}
             />
             <Input
               type="text"
-              placeholder="Imagem URL"
+              placeholder="Image URL"
               value={postImageURL}
               onChange={(e) => setPostImageURL(e.target.value)}
             />
-            <SelectCachorro
-              value={selectedCachorroId}
-              onChange={(e) => setSelectedCachorroId(e.target.value)}
+            <SelectDog
+              value={selectedDogId}
+              onChange={(e) => setSelectedDogId(e.target.value)}
             >
-              <option value="">Selecionar Cachorro</option>
-              {userCachorros.map((cachorro) => (
-                <option key={cachorro.id} value={cachorro.id}>
-                  {cachorro.nome}
+              <option value="">Select Dog</option>
+              {userDogs.map((dog) => (
+                <option key={dog.id} value={dog.id}>
+                  {dog.name}
                 </option>
               ))}
-            </SelectCachorro>
+            </SelectDog>
             <ButtonContainer>
-              <SubmitButton onClick={handlePostSubmit}>
-                Adicionar Postagem
-              </SubmitButton>
+              <SubmitButton onClick={handlePostSubmit}>Add Post</SubmitButton>
               <CancelButton onClick={() => setIsAdding(false)}>
-                Cancelar
+                Cancel
               </CancelButton>
             </ButtonContainer>
           </AddPostForm>
@@ -177,19 +188,19 @@ const AddPostBar = () => {
       {showProfileModal && (
         <Backdrop>
           <ProfileModal>
-            <ProfileTitle>Usuário</ProfileTitle>
+            <ProfileTitle>User</ProfileTitle>
             <ProfileName>
-              {userCachorros.length > 0
-                ? userCachorros[0].nome_tutor
-                : "" || "Cadastre um cachorro primeiro"}
+              {userDogs.length > 0
+                ? userDogs[0].owner_name
+                : "Register a dog first"}
             </ProfileName>
-            <CachorroList>
-              {userCachorros.map((cachorro) => (
-                <CachorroItem key={cachorro.id}>{cachorro.nome}</CachorroItem>
+            <DogList>
+              {userDogs.map((dog) => (
+                <DogItem key={dog.id}>{dog.name}</DogItem>
               ))}
-            </CachorroList>
+            </DogList>
             <CloseButton onClick={() => setShowProfileModal(false)}>
-              Fechar
+              Close
             </CloseButton>
           </ProfileModal>
         </Backdrop>
@@ -197,36 +208,41 @@ const AddPostBar = () => {
       {isDogModalOpen && (
         <Backdrop>
           <DogModal>
-            <ModalTitle>Status do Cachorro</ModalTitle>
-            <SelectCachorro
-              value={selectedCachorroId}
-              onChange={(e) => setSelectedCachorroId(e.target.value)}
+            <ModalTitle>Dog Status</ModalTitle>
+            <SelectDog
+              value={selectedDogId}
+              onChange={(e) => setSelectedDogId(e.target.value)}
             >
-              <option value="">Selecionar </option>
-              {userCachorros.map((cachorro) => (
-                <option key={cachorro.id} value={cachorro.id}>
-                  {cachorro.nome}
+              <option value="">Select Dog</option>
+              {userDogs.map((dog) => (
+                <option key={dog.id} value={dog.id}>
+                  {dog.name}
                 </option>
               ))}
-            </SelectCachorro>
-
+            </SelectDog>
             <DogStatusButton
               onClick={() => {
-                if (selectedCachorroId !== "") {
-                  handleDogStatusToggle(selectedCachorroId, !selectedDogStatus);
+                if (selectedDogId !== "") {
+                  handleDogStatusToggle(
+                    selectedDogId,
+                    !userDogs.find((dog) => dog.id === selectedDogId)?.hireable
+                  );
                 }
               }}
-              disabled={selectedCachorroId === ""}
+              disabled={selectedDogId === ""}
             >
-              Ativar
+              {userDogs.find((dog) => dog.id === selectedDogId)?.hireable
+                ? "Deactivate"
+                : "Activate"}
             </DogStatusButton>
-            <CancelButton onClick={handleCloseDogModal}>Cancelar</CancelButton>
+            <CancelButton onClick={handleCloseDogModal}>Cancel</CancelButton>
           </DogModal>
         </Backdrop>
       )}
     </BarContainer>
   );
 };
+
 const HomeIcon = styled.div`
   font-size: 36px;
   color: #fff;
@@ -388,7 +404,7 @@ const UserIcon = styled(FiUser)`
     transform: scale(1.1);
   }
 `;
-const SelectCachorro = styled.select`
+const SelectDog = styled.select`
   width: 100%;
   padding: 8px;
   border: 1px solid #ccc;
@@ -501,3 +517,7 @@ const CancelButton = styled.button`
 `;
 
 export default AddPostBar;
+
+AddPostBar.propTypes = {
+  fetchAndSetData: PropTypes.func.isRequired,
+};

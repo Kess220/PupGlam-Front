@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import { FaHeart, FaComment } from "react-icons/fa";
 import { IoMdPaw } from "react-icons/io";
+import PropTypes from "prop-types";
 
 const PostCard = ({ post }) => {
   const [comments, setComments] = useState([]);
@@ -159,7 +160,7 @@ const PostCard = ({ post }) => {
       <CommentsSection>
         <h3>Comentários</h3>
         {visibleComments.map((comment) => (
-          <Comment key={comment?.id}>{comment && comment.text}</Comment>
+          <Comment key={comment?.id}>{comment?.text}</Comment>
         ))}
         {comments.length > MAX_VISIBLE_COMMENTS && (
           <ViewCommentsButton
@@ -181,7 +182,17 @@ const PostCard = ({ post }) => {
     </Card>
   );
 };
-
+PostCard.propTypes = {
+  post: PropTypes.shape({
+    id: PropTypes.number.isRequired,
+    dog_name: PropTypes.string.isRequired,
+    dog_age: PropTypes.number.isRequired,
+    image_url: PropTypes.string.isRequired,
+    description: PropTypes.string.isRequired,
+    dog_id: PropTypes.number.isRequired,
+    dog_hireable: PropTypes.bool.isRequired,
+  }).isRequired,
+};
 const Divider = styled.hr`
   margin: 12px 0;
   border: 0;

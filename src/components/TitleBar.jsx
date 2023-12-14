@@ -138,12 +138,13 @@ const AddDogModal = ({ onClose }) => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/cadastrodog`,
+        `${import.meta.env.VITE_API_URL}/createdog`,
         {
-          nome: dogData.nome,
-          raca: dogData.raca,
-          idade: parseInt(dogData.idade),
-          descricao: dogData.descricao,
+          name: dogData.nome,
+          breed: dogData.raca,
+          age: parseInt(dogData.idade),
+          description: dogData.descricao,
+          hireable: true,
         },
         {
           headers: {

@@ -8,20 +8,7 @@ import TitleBar from "../components/TitleBar";
 export default function HomePage() {
   const [posts, setPosts] = useState([]);
 
-  useEffect(() => {
-    // Fetch posts initially
-    fetchPosts();
-
-    // Set up the interval to fetch posts every 2 seconds
-    const intervalId = setInterval(fetchPosts, 1000);
-
-    // Clean up the interval when the component is unmounted
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, []);
-
-  const fetchPosts = async () => {
+  const fetchData = async () => {
     try {
       const token = localStorage.getItem("token");
 
@@ -38,10 +25,24 @@ export default function HomePage() {
     }
   };
 
+  const fetchAndSetData = () => {
+    fetchData();
+  };
+
+  useEffect(() => {
+    fetchAndSetData();
+
+    const intervalId = setInterval(fetchAndSetData, 15000);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+
   return (
     <>
       <HomeContainer>
-        <TitleBar></TitleBar>
+        <TitleBar />
 
         <Feed>
           {posts
@@ -52,7 +53,7 @@ export default function HomePage() {
             ))}
         </Feed>
       </HomeContainer>
-      <AddPostBar />
+      <AddPostBar fetchAndSetData={fetchAndSetData} />
     </>
   );
 }
