@@ -16,6 +16,7 @@ const AddPostBar = ({ fetchAndSetData }) => {
 
   const [userDogs, setUserDogs] = useState([]);
   const [showProfileModal, setShowProfileModal] = useState(false);
+  const [selectedDog, setSelectedDog] = useState(null);
 
   const fetchUserDogs = async () => {
     try {
@@ -102,7 +103,6 @@ const AddPostBar = ({ fetchAndSetData }) => {
             newStatus: newStatus,
           };
 
-          // Atualizar o status do cachorro
           await axios.put(
             `${import.meta.env.VITE_API_URL}/dogs/${selectedDogId}/hiring`,
             requestBody,
@@ -131,6 +131,7 @@ const AddPostBar = ({ fetchAndSetData }) => {
 
   const handleDogIconClick = () => {
     setIsDogModalOpen(true);
+    setSelectedDog(selectedDog);
   };
 
   const handleCloseDogModal = () => {
@@ -187,8 +188,8 @@ const AddPostBar = ({ fetchAndSetData }) => {
       )}
       {showProfileModal && (
         <Backdrop>
-          <ProfileModal>
-            <ProfileTitle>User</ProfileTitle>
+          <ProfileModal dog={selectedDog}>
+            <ProfileTitle>{userDogs[0].name_tutor}</ProfileTitle>
             <ProfileName>
               {userDogs.length > 0
                 ? userDogs[0].owner_name
@@ -330,6 +331,7 @@ const DogStatusButton = styled.button`
   border-radius: 4px;
   cursor: pointer;
   width: 75%;
+  margin-bottom: 10px;
 
   &:hover {
     transform: scale(1.05);

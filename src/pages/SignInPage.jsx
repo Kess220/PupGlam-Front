@@ -55,10 +55,12 @@ export default function SignInPage() {
 
   const showSuccessMessage = () => {
     Swal.fire({
-      position: "top-end",
+      position: "center",
       icon: "success",
       title: "Login feito com sucesso",
       showConfirmButton: false,
+      width: "80%",
+      size: "20px",
       timer: 1500,
       customClass: {
         popup: "custom-popup-class",
@@ -72,6 +74,7 @@ export default function SignInPage() {
       icon: icon,
       title: "Oops...",
       text: text,
+      width: "80%",
       customClass: {
         popup: "custom-popup-class",
         icon: "custom-icon-class",
@@ -109,6 +112,18 @@ export default function SignInPage() {
     </SignInContainer>
   );
 }
+
+const CustomContent = styled.div`
+  font-size: 16px; // Tamanho de fonte padrão
+
+  @media (max-width: 768px) {
+    font-size: 14px; // Tamanho de fonte menor para dispositivos móveis
+
+    .swal2-popup {
+      width: 80%; // Ajuste a largura da janela para 80% em dispositivos móveis
+    }
+  }
+`;
 
 const InputField = styled.input`
   width: 50%;

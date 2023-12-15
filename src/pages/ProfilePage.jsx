@@ -19,7 +19,7 @@ export default function UserProfile() {
         const token = localStorage.getItem("token");
 
         const cachorrosResponse = await axios.get(
-          `${import.meta.env.VITE_API_URL}/cachorros/${id_cachorro}`,
+          `${import.meta.env.VITE_API_URL}/dogs/${id_cachorro}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -27,23 +27,24 @@ export default function UserProfile() {
           }
         );
 
-        const selectedCachorro = cachorrosResponse.data.cachorro;
-
-        console.log("Selected Cachorro:", selectedCachorro);
+        const selectedCachorro = cachorrosResponse.data.dog;
 
         setContactInfo(selectedCachorro);
 
         const postsResponse = await axios.get(
-          `${import.meta.env.VITE_API_URL}/postagem`,
+          `${import.meta.env.VITE_API_URL}/post`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         );
+        console.log(postsResponse.data.posts);
 
-        const filteredPosts = postsResponse.data.posts.filter(
-          (post) => post.id_cachorro === Number(id_cachorro)
+        const allPosts = postsResponse.data.posts;
+
+        const filteredPosts = allPosts.filter(
+          (post) => post.dog_id === Number(id_cachorro)
         );
 
         setPosts(filteredPosts);
@@ -62,6 +63,7 @@ export default function UserProfile() {
   const closeContactModal = () => {
     setIsContactModalOpen(false);
   };
+
   function formatPhoneNumber(phoneNumber) {
     return phoneNumber.replace(/\D/g, "");
   }
@@ -71,13 +73,13 @@ export default function UserProfile() {
       <TitleBar />
       <HomeContainer>
         <Tutor>
-          <h1>Tutor: {contactInfo && contactInfo.nome_tutor}</h1>
+          <h1>Tutor: {contactInfo?.name_tutor}</h1>
         </Tutor>
         <DogDescription>
           {contactInfo && (
             <div>
-              <h2>Raça: {contactInfo.raca}</h2>
-              <p className="dog-description">{contactInfo.descricao}</p>
+              <h2>Raça: {contactInfo.breed}</h2>
+              <p className="dog-description">{contactInfo.description}</p>
             </div>
           )}
           <Button onClick={openContactModal}>Conquiste meus Talentos</Button>
@@ -100,11 +102,18 @@ export default function UserProfile() {
                 <ContactItem>
                   <ContactLabel>Número de Celular:</ContactLabel>
                   <ContactValue>
-                    {contactInfo?.telefone &&
-                      formatPhoneNumber(contactInfo.telefone).replace(
-                        /^(\d{2})(\d{5})(\d{4})$/,
-                        "($1) $2-$3"
-                      )}
+                    {contactInfo?.phone && (
+                      <ReactInputMask
+                        mask=" 99999-9999"
+                        value={formatPhoneNumber(contactInfo.phone)}
+                        readOnly
+                        style={{
+                          width: "110px",
+                          padding: "8px",
+                          fontSize: "16px",
+                        }}
+                      />
+                    )}
                   </ContactValue>
                 </ContactItem>
                 <ContactItem>

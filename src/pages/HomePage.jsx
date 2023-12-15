@@ -73,4 +73,5 @@ const Feed = styled.div`
   width: 100%;
   max-width: 600px;
   margin-top: 54px;
+  margin-bottom: 35px;
 `;
