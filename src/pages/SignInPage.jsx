@@ -32,9 +32,6 @@ export default function SignInPage() {
       navigate("/home");
 
       showSuccessMessage();
-
-      console.log("Login successful!");
-      console.log(token);
     } catch (error) {
       if (error?.response && error?.response.data) {
         setError(error.response.data.error);
